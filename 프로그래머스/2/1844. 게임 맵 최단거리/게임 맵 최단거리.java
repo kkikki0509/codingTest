@@ -1,67 +1,70 @@
 import java.util.*;
 
 class Solution {
-
+    int cnt = 0;
+    
     public int solution(int[][] maps) {
-
+        Deque<Node> deq = new ArrayDeque<>();
         int n = maps.length;
         int m = maps[0].length;
-
-        boolean[][] invite = new boolean[n][m];
-
-        Queue<int[]> queue = new ArrayDeque<>();
-
-        // 시작점
-        queue.offer(new int[]{0, 0});
-        invite[0][0] = true;
-
-        // 동, 서, 남, 북
-        int[] dx = {0, 0, 1, -1};
-        int[] dy = {1, -1, 0, 0};
-
-        while (!queue.isEmpty()) {
-
-            int[] current = queue.poll();
-
-            int x = current[0];
-            int y = current[1];
-
-            // 상대 팀 도착
-            if (x == n - 1 && y == m - 1) {
-                return maps[x][y];
+        boolean[][] visited = new boolean[n][m];
+        boolean flag = false;
+        
+        deq.offerLast(new Node(0, 0, 1));
+        visited[0][0] = true;
+        
+        while(!deq.isEmpty()){
+            Node node = deq.pollFirst();    
+            
+            int x = node.x;
+            int y = node.y;
+            int dist = node.dist;
+            
+            if(x == n - 1 && y == m - 1){
+                flag = true;
+                cnt = dist;
+                break;
             }
-
-            // 동, 서, 남, 북 탐색
-            for (int i = 0; i < 4; i++) {
-
-                int nx = x + dx[i];
-                int ny = y + dy[i];
-
-                // 맵 밖
-                if (nx <= -1 || nx >= n || ny <= -1 || ny >= m) {
-                    continue;
-                }
-
-                // 벽
-                if (maps[nx][ny] == 0) {
-                    continue;
-                }
-
-                // 이미 방문
-                if (invite[nx][ny]) {
-                    continue;
-                }
-
-                invite[nx][ny] = true;
-
-                // 거리 기록
-                maps[nx][ny] = maps[x][y] + 1;
-
-                queue.offer(new int[]{nx, ny});
+                
+            // 좌
+            if(x > 0 && maps[x - 1][y] == 1 && !visited[x - 1][y]){
+                deq.offerLast(new Node(x - 1, y, dist + 1));
+                visited[x - 1][y] = true;
             }
+            // 우 
+            if(x < n - 1 && maps[x + 1][y] == 1 && !visited[x + 1][y]){
+                deq.offerLast(new Node(x + 1, y, dist + 1));
+                visited[x + 1][y] = true;
+            }                
+            // 상
+            if(y > 0 && maps[x][y - 1] == 1 && !visited[x][y - 1]){
+                deq.offerLast(new Node(x, y - 1, dist + 1));
+                visited[x][y - 1] = true;
+            }
+            // 하
+            if(y < m - 1 && maps[x][y + 1] == 1 && !visited[x][y + 1]){
+                deq.offerLast(new Node(x, y + 1, dist + 1));
+                visited[x][y + 1] = true;
+            }
+            
         }
-
-        // 상대 팀 진영에 도착할 수 없음
-        return -1;
+        
+        if(!flag){
+            cnt = -1;
+        }
+        
+        return cnt;
+    }
+    
+    class Node{
+        int x;
+        int y;
+        int dist;
+        
+        public Node(int x, int y, int dist){
+            this.x = x;
+            this.y = y;
+            this.dist = dist;
+        }
     }
 }
